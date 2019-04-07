@@ -1,7 +1,8 @@
 .mainPanel {
     display: flex;
     justify-content: center;
-    margin: 30px;
+    margin: -10px;
+    background-image: url(images/fondo.jpg);
 }
 
 .leftBar {
@@ -14,7 +15,7 @@
 
 .board {
     margin: 20px;
-    background-color: sandybrown;
+    background-image: url(images/tablero.jpg);
     position: relative;
     border-radius: 25px;
 }
@@ -24,11 +25,12 @@
     display: grid;
     grid-template-columns: repeat(18, 40px);
     grid-template-rows: repeat(18, 40px);
-    border: 1px solid black;
+    border: 1px solid #FFCB72;
 }
 
 .boardCell {
-    border: 1px solid black;
+    border: 1px solid;
+    border-color: #FFCB72;
 }
 
 #gridCells {
