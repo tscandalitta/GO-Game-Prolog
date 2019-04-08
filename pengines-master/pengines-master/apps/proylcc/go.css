@@ -87,6 +87,7 @@
 
 .turnLab {
     text-transform: uppercase;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
 .playerTurn {
@@ -111,9 +112,11 @@
     height: 40px;
     background: white;
     font-size: 18px;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     cursor: pointer;
     border: 2px solid #E97414;
     border-radius: 10px;
+    -webkit-transition-duration: 0.4s;
     transition-duration: 0.4s;
 }
 
