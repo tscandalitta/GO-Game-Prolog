@@ -7,13 +7,14 @@ var gridData;
 var cellElems;
 // States if it's black player turn.
 var turnBlack = false;
+var turnosConsecutivosPasados=0;
 var bodyElem;
 var latestStone;
 
 
 
 /**
-* Initialization function. Requests to server, through pengines.js library, 
+* Initialization function. Requests to server, through pengines.js library,
 * the creation of a Pengine instance, which will run Prolog code server-side.
 */
 
@@ -80,6 +81,7 @@ function handleSuccess(response) {
                 (gridData[row][col] === "w" ? " stoneWhite" : gridData[row][col] === "b" ? " stoneBlack" : "") +
                 (latestStone && row === latestStone[0] && col === latestStone[1] ? " latest" : "");
         }
+    turnosConsecutivosPasados=0;
     switchTurn();
 }
 
@@ -102,8 +104,19 @@ function handleClick(row, col) {
 }
 
 function switchTurn() {
+    turnosConsecutivosPasados++;
+    if(turnosConsecutivosPasados==2){
+      finalizar();
+    }
+    else alert("HOLAAA");
     turnBlack = !turnBlack;
     bodyElem.className = turnBlack ? "turnBlack" : "turnWhite";
+}
+
+function finalizar(){
+  var msj ="";
+  msj = turnBlack ? "GANO JUGADOR NEGRO" : "GANO JUGADOR BLANCO";
+  alert(msj);
 }
 
 /**
