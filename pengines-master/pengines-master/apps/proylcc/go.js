@@ -7,6 +7,7 @@ var gridData;
 var cellElems;
 // States if it's black player turn.
 var turnBlack = false;
+// Contador de turnos consecutivos pasados.
 var turnosConsecutivosPasados;
 var bodyElem;
 var latestStone;
@@ -31,7 +32,7 @@ function init() {
         onfailure: handleFailure,
         destroy: false
     });
-
+    // Inicializo parametros
     turnosConsecutivosPasados=0;
 }
 
@@ -83,6 +84,9 @@ function handleSuccess(response) {
                 (gridData[row][col] === "w" ? " stoneWhite" : gridData[row][col] === "b" ? " stoneBlack" : "") +
                 (latestStone && row === latestStone[0] && col === latestStone[1] ? " latest" : "");
         }
+
+    //SI ALGUN JUGADOR PONE UNA FICHA, SETEO CONTADOR EN 0.
+    turnosConsecutivosPasados=0;
     switchTurnDesdeTablero();
 }
 
@@ -109,8 +113,7 @@ function switchTurn() {
     if(turnosConsecutivosPasados==2){
       finalizar();
     }
-    turnBlack = !turnBlack;
-    bodyElem.className = turnBlack ? "turnBlack" : "turnWhite";
+    switchTurnDesdeTablero();
 }
 
 function switchTurnDesdeTablero() {
@@ -119,11 +122,13 @@ function switchTurnDesdeTablero() {
 }
 
 function finalizar(){
-  var msj ="";
-  msj = (!turnBlack) ? "GANO JUGADOR NEGRO" : "GANO JUGADOR BLANCO";
-  alert(msj);
-  turnosConsecutivosPasados=0;
-  pengine.ask('emptyBoard(Board)');
+    alert("GANO EL JUGADOR CON MAS FICHAS CAPTURADAS");
+    turnosConsecutivosPasados=0;
+    //Limpio tablero.
+    pengine.ask('emptyBoard(Board)');
+    //Empieza el jugador negro.
+    turnBlack = true;
+    bodyElem.className = "turnBlack";
 }
 
 /**
