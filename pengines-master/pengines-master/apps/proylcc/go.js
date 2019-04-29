@@ -7,7 +7,7 @@ var gridData;
 var cellElems;
 // States if it's black player turn.
 var turnBlack = false;
-var turnosConsecutivosPasados=0;
+var turnosConsecutivosPasados;
 var bodyElem;
 var latestStone;
 
@@ -31,6 +31,8 @@ function init() {
         onfailure: handleFailure,
         destroy: false
     });
+
+    turnosConsecutivosPasados=0;
 }
 
 /**
@@ -81,8 +83,7 @@ function handleSuccess(response) {
                 (gridData[row][col] === "w" ? " stoneWhite" : gridData[row][col] === "b" ? " stoneBlack" : "") +
                 (latestStone && row === latestStone[0] && col === latestStone[1] ? " latest" : "");
         }
-    turnosConsecutivosPasados=0;
-    switchTurn();
+    switchTurnDesdeTablero();
 }
 
 /**
@@ -108,15 +109,21 @@ function switchTurn() {
     if(turnosConsecutivosPasados==2){
       finalizar();
     }
-    else alert("HOLAAA");
+    turnBlack = !turnBlack;
+    bodyElem.className = turnBlack ? "turnBlack" : "turnWhite";
+}
+
+function switchTurnDesdeTablero() {
     turnBlack = !turnBlack;
     bodyElem.className = turnBlack ? "turnBlack" : "turnWhite";
 }
 
 function finalizar(){
   var msj ="";
-  msj = turnBlack ? "GANO JUGADOR NEGRO" : "GANO JUGADOR BLANCO";
+  msj = (!turnBlack) ? "GANO JUGADOR NEGRO" : "GANO JUGADOR BLANCO";
   alert(msj);
+  turnosConsecutivosPasados=0;
+  pengine.ask('emptyBoard(Board)');
 }
 
 /**
