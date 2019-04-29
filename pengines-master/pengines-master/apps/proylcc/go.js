@@ -12,6 +12,8 @@ var turnosConsecutivosPasados;
 var bodyElem;
 var latestStone;
 
+var contFichasNegras, contFichasBlancas;
+
 
 
 /**
@@ -34,6 +36,8 @@ function init() {
     });
     // Inicializo parametros
     turnosConsecutivosPasados=0;
+    contFichasNegras=0;
+    contFichasBlancas=0;
 }
 
 /**
@@ -119,6 +123,8 @@ function switchTurn() {
 function switchTurnDesdeTablero() {
     turnBlack = !turnBlack;
     bodyElem.className = turnBlack ? "turnBlack" : "turnWhite";
+    document.getElementById("puntajeNegras").innerHTML= ""+contFichasNegras;
+    document.getElementById("puntajeBlancas").innerHTML= ""+contFichasBlancas;
 }
 
 function finalizar(){
