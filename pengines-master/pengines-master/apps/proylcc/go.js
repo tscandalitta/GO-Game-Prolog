@@ -81,15 +81,22 @@ function handleCreate() {
  */
 
 function handleSuccess(response) {
+    contFichasNegras=0;
+    contFichasBlancas=0;
     gridData = response.data[0].Board;
     for (let row = 0; row < gridData.length; row++)
         for (let col = 0; col < gridData[row].length; col++) {
             cellElems[row][col].className = "gridCell" +
                 (gridData[row][col] === "w" ? " stoneWhite" : gridData[row][col] === "b" ? " stoneBlack" : "") +
                 (latestStone && row === latestStone[0] && col === latestStone[1] ? " latest" : "");
+            //Contador de fichas en el tablero.
+            if( gridData[row][col] === "w")
+              contFichasBlancas++
+            else if( gridData[row][col] === "b")
+              contFichasNegras++;
         }
 
-    //SI ALGUN JUGADOR PONE UNA FICHA, SETEO CONTADOR EN 0.
+    //Si algun jugador coloca una ficha seteo el contador en 0.
     turnosConsecutivosPasados=0;
     switchTurnDesdeTablero();
 }
@@ -99,7 +106,11 @@ function handleSuccess(response) {
  */
 
 function handleFailure() {
-    alert("Invalid move!");
+    var row = latestStone[0];
+    var col = latestStone[1];
+    alert("Ya hay ficha en [" + row + "," + col + "]");
+    const s = "eliminar(" + Pengine.stringify(gridData) + "," + "[" + row + "," + col + "]" + ",Board)";
+    pengine.ask(s);
 }
 
 /**
@@ -114,9 +125,8 @@ function handleClick(row, col) {
 
 function switchTurn() {
     turnosConsecutivosPasados++;
-    if(turnosConsecutivosPasados==2){
+    if(turnosConsecutivosPasados==2)
       finalizar();
-    }
     switchTurnDesdeTablero();
 }
 
@@ -128,7 +138,7 @@ function switchTurnDesdeTablero() {
 }
 
 function finalizar(){
-    alert("GANO EL JUGADOR CON MAS FICHAS CAPTURADAS");
+    imprimirPuntajes();
     turnosConsecutivosPasados=0;
     //Limpio tablero.
     pengine.ask('emptyBoard(Board)');
@@ -137,6 +147,14 @@ function finalizar(){
     bodyElem.className = "turnBlack";
 }
 
+function imprimirPuntajes(){
+    if(contFichasNegras>contFichasBlancas)
+      alert("GANO EL JUGADOR NEGRO\nPUNTAJE: "+contFichasNegras)
+    else if(contFichasNegras==contFichasBlancas)
+      alert("EMPATE\nPUNTAJE NEGRO: "+contFichasNegras+"\nPUNTAJE BLANCO: "+contFichasBlancas)
+    else
+      alert("GANO EL JUGADOR BLANCO\nPUNTAJE: "+contFichasBlancas);
+}
 /**
 * Call init function after window loaded to ensure all HTML was created before
 * accessing and manipulating it.
