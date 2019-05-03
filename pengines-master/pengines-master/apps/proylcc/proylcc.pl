@@ -42,8 +42,8 @@ goMove(Board, Player, [R,C], RBoard):-
 %
 % eliminar(+Board, +Pos, -RBoard)
 %
-% RBoard es la configuración resultante de eliminar la posicion Pos a partir
-% de la configuración Board.
+% RBoard es la configuración resultante de eliminar la ficha en la posicion Pos
+% a partir de la configuración Board.
 
 eliminar(Board, [R,C], RBoard):-
     replace(Row, R, NRow, Board, RBoard), replace(_, C, "-", Row, NRow).
@@ -61,13 +61,15 @@ replace(X, XIndex, Y, [Xi|Xs], [Xi|XsY]):-
     replace(X, XIndexS, Y, Xs, XsY).
 
 
+
+%%%%%%%%%NO ANDA - NO ANDA - NO ANDA - NO ANDA - NO ANDA - NO ANDA - %%%%%%%%%%%%
 capturada(X):- capt(X,[]).
 
 capt(X,L):- not(member(X,L)), L1=[X|L], getAdyacentes(X,LA), capt2(LA,L1).
 
 capt2([],_).
 capt2([X|XS],L):- capt(X,L), L1=[X|L], capt2(Xs,L1).
-
+%%%%%%%%%NO ANDA - NO ANDA - NO ANDA - NO ANDA - NO ANDA - NO ANDA - %%%%%%%%%%%%
 
 
 
