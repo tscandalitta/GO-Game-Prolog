@@ -2,7 +2,8 @@
 	[
 		emptyBoard/1,
 		goMove/4,
-		eliminar/3
+		eliminar/3,
+		obtenerContenido/3
 	]).
 
 	emptyBoard([
@@ -57,22 +58,71 @@ replace(X, 0, Y, [X|Xs], [Y|Xs]).
 
 replace(X, XIndex, Y, [Xi|Xs], [Xi|XsY]):-
     XIndex > 0,
-    XIndexS is XIndex - 1,
+		XIndexS is XIndex - 1,
     replace(X, XIndexS, Y, Xs, XsY).
 
+%%C es el color de pos, puedo pasar el color contrario para verificar las nulas tmb
+%para ver si la pos esta capturadad por ese color.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% capturada(+Board, +Pos, +Color, +Visitados).
+%
 
-%%%%%%%%%NO ANDA - NO ANDA - NO ANDA - NO ANDA - NO ANDA - NO ANDA - %%%%%%%%%%%%
-capturada(X):- capt(X,[]).
+capturada(Board,Pos,Color,Visitados):-
+		getAdyacentes(Pos,Adyacentes), getColorContrario(Color,ColorContrario),
+		analizarAdyacentes(Board,Adyacentes,[Pos|Visitados],ColorContrario).
 
-capt(X,L):- not(member(X,L)), L1=[X|L], getAdyacentes(X,LA), capt2(LA,L1).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% analizarAdyacentes(+Board, +Adyacentes, +Visitados, +ColorContrario).
+%
+% Verifica que todos los miembros de la lista Adyacentes cumplan con la
+% condicion de captura.
 
-capt2([],_).
-capt2([X|XS],L):- capt(X,L), L1=[X|L], capt2(Xs,L1).
-%%%%%%%%%NO ANDA - NO ANDA - NO ANDA - NO ANDA - NO ANDA - NO ANDA - %%%%%%%%%%%%
+analizarAdyacentes(_Board,[],_Visit,_CC).
 
+analizarAdyacentes(Board,[X|Xs],Visitados,CC):-
+		condicionDeCaptura(Board,X,Visitados,CC),
+		analizarAdyacentes(Board,Xs,[X|Visitados],CC).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% condicionDeCaptura(+Board, +Pos, +Visitados, +ColorContrario).
+%
+% Verifica si la ficha en la posicion Pos está capturada.
 
+condicionDeCaptura(Board,Pos,_Visitados,CC):-
+		obtenerContenido(Board,Pos,CC).
+
+condicionDeCaptura(Board,Pos,Visitados,CC):-
+		member(Pos,Visitados), getColorContrario(CC,Color),
+		obtenerContenido(Board,Pos,Color).
+
+condicionDeCaptura(Board,Pos,Visitados,CC):-
+		not(member(Pos,Visitados)), getColorContrario(CC,Color),
+		obtenerContenido(Board,Pos,Color), capturada(Board,Pos,Color,Visitados).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% obtenerContenido(+Board, +Pos, -Contenido).
+%
+
+obtenerContenido(Board, [R,C], Contenido):-
+    replace(Row, R, NRow, Board, _RBoard), replace(Contenido, C, Contenido, Row, NRow).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% getColorContrario(?Color, ?ColorContrario).
+%
+
+getColorContrario("w","b").
+getColorContrario("b","w").
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% getAdyacentes(+Pos, -Adyacentes).
+%
 
 getAdyacentes([0,0],[[1,0],[0,1]]).
 getAdyacentes([0,18],[[0,17],[1,18]]).
