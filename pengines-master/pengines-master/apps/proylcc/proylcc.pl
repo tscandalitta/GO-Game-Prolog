@@ -7,10 +7,10 @@
 	]).
 
 	emptyBoard([
-			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["-","w","w","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["w","b","b","w","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["w","b","b","w","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["-","w","w","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
@@ -35,8 +35,10 @@
 %
 % RBoard es la configuración resultante de reflejar la movida del jugador Player
 % en la posición Pos a partir de la configuración Board.
+% No permite suicidio ------BASICO no verifica que las fichas que la rodean queden atrapadas
 
 goMove(Board, Player, [R,C], RBoard):-
+		not(capturada(Board,[R,C],Player,[],_)),
     replace(Row, R, NRow, Board, RBoard), replace("-", C, Player, Row, NRow).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -64,14 +66,19 @@ replace(X, XIndex, Y, [Xi|Xs], [Xi|XsY]):-
 %%C es el color de pos, puedo pasar el color contrario para verificar las nulas tmb
 %para ver si la pos esta capturadad por ese color.
 
+unir([],Ys,Ys).
+unir([X|Xs],Ys,Zs):- member(X,Ys), unir(Xs,Ys,Zs).
+unir([X|Xs],Ys,Zs):- not(member(X,Ys)), unir(Xs,Ys,Z1), Zs=[X|Z1].
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % capturada(+Board, +Pos, +Color, +Visitados).
 %
 
-capturada(Board,Pos,Color,Visitados):-
+capturada(Board,Pos,Color,Visitados,Capturadas):-
 		getAdyacentes(Pos,Adyacentes), getColorContrario(Color,ColorContrario),
-		analizarAdyacentes(Board,Adyacentes,[Pos|Visitados],ColorContrario).
+		analizarAdyacentes(Board,Adyacentes,[Pos|Visitados],ColorContrario,Capts),
+		Capturadas=[Pos|Capts].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -80,11 +87,12 @@ capturada(Board,Pos,Color,Visitados):-
 % Verifica que todos los miembros de la lista Adyacentes cumplan con la
 % condicion de captura.
 
-analizarAdyacentes(_Board,[],_Visit,_CC).
+analizarAdyacentes(_Board,[],_Visit,_CC,[]).
 
-analizarAdyacentes(Board,[X|Xs],Visitados,CC):-
-		condicionDeCaptura(Board,X,Visitados,CC),
-		analizarAdyacentes(Board,Xs,[X|Visitados],CC).
+analizarAdyacentes(Board,[X|Xs],Visitados,CC,Capturadas):-
+		condicionDeCaptura(Board,X,Visitados,CC,Capt1),
+		analizarAdyacentes(Board,Xs,[X|Visitados],CC,Capt2),
+		unir(Capt1,Capt2,Capturadas).  %%%%%%%%%%%%%%%%%%%%TEMPORAL, SIRVE???? ME DEVUELVEN POS REPETIDAS CAPT1 Y CAPT2
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -92,16 +100,16 @@ analizarAdyacentes(Board,[X|Xs],Visitados,CC):-
 %
 % Verifica si la ficha en la posicion Pos está capturada.
 
-condicionDeCaptura(Board,Pos,_Visitados,CC):-
+condicionDeCaptura(Board,Pos,_Visitados,CC,[]):-
 		obtenerContenido(Board,Pos,CC).
 
-condicionDeCaptura(Board,Pos,Visitados,CC):-
+condicionDeCaptura(Board,Pos,Visitados,CC,[]):-
 		member(Pos,Visitados), getColorContrario(CC,Color),
 		obtenerContenido(Board,Pos,Color).
 
-condicionDeCaptura(Board,Pos,Visitados,CC):-
+condicionDeCaptura(Board,Pos,Visitados,CC,Capturadas):-
 		not(member(Pos,Visitados)), getColorContrario(CC,Color),
-		obtenerContenido(Board,Pos,Color), capturada(Board,Pos,Color,Visitados).
+		obtenerContenido(Board,Pos,Color), capturada(Board,Pos,Color,Visitados,Capturadas).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

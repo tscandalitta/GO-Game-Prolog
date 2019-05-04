@@ -108,9 +108,9 @@ function handleSuccess(response) {
 function handleFailure() {
     var row = latestStone[0];
     var col = latestStone[1];
-    alert("Ya hay ficha en [" + row + "," + col + "]");
+    alert("JUGADA INVALIDA [" + row + "," + col + "]");
     const s = "eliminar(" + Pengine.stringify(gridData) + "," + "[" + row + "," + col + "]" + ",Board)";
-    pengine.ask(s);
+  //  pengine.ask(s);
 }
 
 /**
