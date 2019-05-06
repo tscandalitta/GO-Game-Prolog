@@ -62,13 +62,17 @@
 
 .gridCell.stoneWhite,
 .gridCell.stoneWhite:hover {
-    background-color: white;
+  background-image: url(images/blanca.png);
+  background-repeat: no-repeat;
+  background-position: center;
     cursor: auto;
 }
 
 .gridCell.stoneBlack,
 .gridCell.stoneBlack:hover {
-    background-color: black;
+  background-image: url(images/negra.png);
+  background-repeat: no-repeat;
+  background-position: center;
     cursor: auto;
 }
 
