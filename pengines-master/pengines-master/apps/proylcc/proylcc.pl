@@ -7,10 +7,10 @@
 	]).
 
 	emptyBoard([
-			 ["-","w","w","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["w","b","b","w","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["w","b","b","w","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["-","w","w","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
@@ -35,11 +35,33 @@
 %
 % RBoard es la configuración resultante de reflejar la movida del jugador Player
 % en la posición Pos a partir de la configuración Board.
-% No permite suicidio ------BASICO no verifica que las fichas que la rodean queden atrapadas
 
 goMove(Board, Player, [R,C], RBoard):-
-		not(capturada(Board,[R,C],Player,[],_)),
-    replace(Row, R, NRow, Board, RBoard), replace("-", C, Player, Row, NRow).
+    replace(Row, R, NRow, Board, TableroAux), replace("-", C, Player, Row, NRow),
+		getAdyacentes([R,C],Adyacentes),
+		devolverCapturadas(TableroAux,Adyacentes,Player,Capturadas),    %Devuelve las capturadas por la ficha que puse recien
+		Capturadas\=[],       %Si no es vacio, capture algunas fichas
+		eliminarCapturadas(TableroAux,Capturadas,RBoard).
+
+goMove(Board, Player, [R,C], RBoard):-
+    replace(Row, R, NRow, Board, TableroAux), replace("-", C, Player, Row, NRow),
+		getAdyacentes([R,C],Adyacentes),
+		devolverCapturadas(TableroAux,Adyacentes,Player,Capturadas),
+		Capturadas=[],     % Si no capture niguna ficha, me fijo si no es suicidio
+		not(capturada(TableroAux,[R,C],Player,[],_CapturadasMias)),   %Si no estoy capturado, no es suicidio, coloco la ficha y listo
+		RBoard=TableroAux.
+
+
+devolverCapturadas(_Board,[],_Color,[]).
+
+devolverCapturadas(Board,[P|Ps],Color,Capturadas):-
+		getColorContrario(Color,CC),
+		capturada(Board,P,CC,[],Caps1),
+		devolverCapturadas(Board,Ps,Color,Caps2),
+		unir(Caps1,Caps2,Capturadas).
+
+devolverCapturadas(Board,[_P|Ps],Color,Capturadas):-
+		devolverCapturadas(Board,Ps,Color,Capturadas).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -74,6 +96,9 @@ unir([X|Xs],Ys,Zs):- not(member(X,Ys)), unir(Xs,Ys,Z1), Zs=[X|Z1].
 %
 % capturada(+Board, +Pos, +Color, +Visitados).
 %
+eliminarCapturadas(Board,[],Board).
+eliminarCapturadas(Board,[Pos|Capturadas],NBoard):-
+		eliminarCapturadas(Board,Capturadas,BoardAux), eliminar(BoardAux,Pos,NBoard).
 
 capturada(Board,Pos,Color,Visitados,Capturadas):-
 		getAdyacentes(Pos,Adyacentes), getColorContrario(Color,ColorContrario),
@@ -96,7 +121,7 @@ analizarAdyacentes(Board,[X|Xs],Visitados,CC,Capturadas):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% condicionDeCaptura(+Board, +Pos, +Visitados, +ColorContrario).
+% condicionDeCaptura(+Board, +Pos, +Visitados, +ColorContrario, -Capturadas).
 %
 % Verifica si la ficha en la posicion Pos está capturada.
 
