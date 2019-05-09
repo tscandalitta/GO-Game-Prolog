@@ -14,6 +14,8 @@ var latestStone;
 
 var contFichasNegras, contFichasBlancas;
 
+var finalize = false;
+
 
 
 /**
@@ -81,24 +83,44 @@ function handleCreate() {
  */
 
 function handleSuccess(response) {
-    contFichasNegras=0;
-    contFichasBlancas=0;
-    gridData = response.data[0].Board;
-    for (let row = 0; row < gridData.length; row++)
-        for (let col = 0; col < gridData[row].length; col++) {
-            cellElems[row][col].className = "gridCell" +
-                (gridData[row][col] === "w" ? " stoneWhite" : gridData[row][col] === "b" ? " stoneBlack" : "") +
-                (latestStone && row === latestStone[0] && col === latestStone[1] ? " latest" : "");
-            //Contador de fichas en el tablero.
-            if( gridData[row][col] === "w")
-              contFichasBlancas++
-            else if( gridData[row][col] === "b")
-              contFichasNegras++;
-        }
+    alert("ESTOY EN success");
+    if(finalize){
 
-    //Si algun jugador coloca una ficha seteo el contador en 0.
-    turnosConsecutivosPasados=0;
-    switchTurnDesdeTablero();
+
+
+      var listaNegras= response.data[0].CapturadasNegro;
+      var listaBlancas= response.data[0].CapturadasBlanco;
+
+      contFichasNegras+=listaNegras.length;
+      contFichasBlancas+=listaBlancas.length;
+    }
+
+    else{
+
+      alert(" NO ESTOY EN FINALIZE");
+
+      contFichasNegras=0;
+      contFichasBlancas=0;
+
+      gridData = response.data[0].Board;
+      for (let row = 0; row < gridData.length; row++)
+          for (let col = 0; col < gridData[row].length; col++) {
+              cellElems[row][col].className = "gridCell" +
+                  (gridData[row][col] === "w" ? " stoneWhite" : gridData[row][col] === "b" ? " stoneBlack" : "") +
+                  (latestStone && row === latestStone[0] && col === latestStone[1] ? " latest" : "");
+              //Contador de fichas en el tablero.
+              if( gridData[row][col] === "w")
+                contFichasBlancas++
+              else if( gridData[row][col] === "b")
+                contFichasNegras++;
+          }
+
+      //Si algun jugador coloca una ficha seteo el contador en 0.
+      turnosConsecutivosPasados=0;
+      switchTurnDesdeTablero();
+
+    }
+
 }
 
 /**
@@ -109,8 +131,6 @@ function handleFailure() {
     var row = latestStone[0];
     var col = latestStone[1];
     alert("JUGADA INVALIDA [" + row + "," + col + "]");
-    const s = "eliminar(" + Pengine.stringify(gridData) + "," + "[" + row + "," + col + "]" + ",Board)";
-  //  pengine.ask(s);
 }
 
 /**
@@ -138,6 +158,17 @@ function switchTurnDesdeTablero() {
 }
 
 function finalizar(){
+
+    finalize=true;
+
+    alert("puse en true finalizar");
+
+    pengine.ask("getNulsCapturadas(" + Pengine.stringify(gridData) + ",CapturadasNegro,CapturadasBlanco)");
+
+    alert("volvi");
+
+    finalize=false;
+
     imprimirPuntajes();
     turnosConsecutivosPasados=0;
     //Limpio tablero.
@@ -146,6 +177,7 @@ function finalizar(){
     turnBlack = true;
     bodyElem.className = "turnBlack";
 }
+
 
 function imprimirPuntajes(){
     if(contFichasNegras>contFichasBlancas)
