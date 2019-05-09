@@ -1,13 +1,12 @@
 :- module(proylcc,
 	[
 		emptyBoard/1,
-		goMove/4,
-		getNulasCapturadas/3
+		goMove/4
 	]).
 
 	emptyBoard([
-			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["-","b","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["b","b","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
@@ -143,6 +142,20 @@ condicionDeCaptura(Board,Pos,Visitados,Color,CC,Capturadas):-
 
 obtenerContenido(Board, [R,C], Contenido):-
     replace(Row, R, NRow, Board, _RBoard), replace(Contenido, C, Contenido, Row, NRow).
+
+crearListaNulas(Board,ListaNulas):-recorrerMatriz(Board,0,0,ListaNulas).
+
+recorrerMatriz([],_,_,[]).
+recorrerMatriz([X|Xs],F,C,Lista):-recorrerLista(X,F,C,Lista1),F1 is F+1 ,recorrerMatriz(Xs,F1,C,Lista2),append(Lista1,Lista2,Lista).
+
+recorrerLista([],_,_,[]).
+recorrerLista([X|Xs],F,C,[[F,C]|ListaAux]):-X="-", C1 is C+1, recorrerLista(Xs,F,C1,ListaAux).
+recorrerLista([X|Xs],F,C,ListaNulas):-C1 is C+1,recorrerLista(Xs,F,C1,ListaNulas).
+
+getNulasCapturadas(Board,CapturadasNegras,CapturadasBlancas):-
+		crearListaNulas(Board,ListaNulas),
+		findall(Pos,(member(Pos,ListaNulas),capturada(Board,Pos,"-","b",[],_Conj1)),CampturadasNegras),
+		findall(Pos,(member(Pos,ListaNulas),capturada(Board,Pos,"-","w",[],_Conj)),CampturadasNegras).
 
 
 
