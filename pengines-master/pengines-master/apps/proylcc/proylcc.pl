@@ -35,7 +35,7 @@
 % en la posición Pos a partir de la configuración Board.
 
 goMove(Board, Player, [R,C], RBoard):-
-    replace(Row, R, NRow, Board, TableroAux), replace("-", C, Player, Row, NRow),
+		replace(Row, R, NRow, Board, TableroAux), replace("-", C, Player, Row, NRow),
 		getAdyacentes([R,C],Adyacentes),
 		getColorContrario(Player,CC),
 		devolverCapturadas(TableroAux,Adyacentes,Player,CC,Capturadas),    %Devuelve las capturadas por la ficha que puse recien
@@ -52,7 +52,12 @@ goMove(Board, Player, [R,C], RBoard):-
 		RBoard=TableroAux.
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% devolverCapturadas(+Board, +Adyacentes, +Color, +ColorContrario, -Capturadas).
+%
+% Verifica si cada una de las fichas en la lista de Adyacentes está capturada.
+% Capturadas es el resultado de la union de los conjuntos de c/u de las fichas capturadas. 
 
 devolverCapturadas(_Board,[],_Color,_CC,[]).
 
@@ -105,9 +110,10 @@ replace(X, XIndex, Y, [Xi|Xs], [Xi|XsY]):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% capturada(+Board, +Pos, +Color, +Visitados).
+% capturada(+Board, +Pos, +Color, +Visitados, -Capturadas).
 %
-% Verifica si la ficha de color Color en la posicion Pos del tablero Board está capturada por ColorContrario.
+% Verifica si la ficha de color Color en la posicion Pos del tablero Board está capturada por 
+% ColorContrario y devuelve el conjunto capturado en Capturadas.
 
 capturada(Board,Pos,Color,ColorContrario,Visitados,Capturadas):-
 		getAdyacentes(Pos,Adyacentes),
