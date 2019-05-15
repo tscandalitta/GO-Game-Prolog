@@ -13,7 +13,7 @@
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["-","-","-","-","-","-","b","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
@@ -262,17 +262,46 @@ sonDeMiColor(Board,[_X|Xs],Color,Adyacentes):-
 %
 % Adyacentes contiene todas las posiciones adyacentes a Pos.
 
-getAdyacentes([0,0],[[1,0],[0,1]]).
-getAdyacentes([0,18],[[0,17],[1,18]]).
-getAdyacentes([18,0],[[18,1],[17,0]]).
-getAdyacentes([18,18],[[18,17],[17,18]]).
-getAdyacentes([0,C],[[1,C],[0,C1],[0,C2]]):- C\=0, C1 is C-1, C2 is C+1.
-getAdyacentes([18,C],[[17,C],[18,C1],[18,C2]]):- C\=18, C1 is C-1, C2 is C+1.
-getAdyacentes([R,0],[[R,1],[R1,0],[R2,0]]):- R\=0, R1 is R-1, R2 is R+1.
-getAdyacentes([R,18],[[R,17],[R1,18],[R2,18]]):- R\=18, R1 is R-1, R2 is R+1.
-getAdyacentes([R,C],Adyacentes):-R\=0, C\=0, R\=18, C\=18, R1 is R-1, R2 is R+1, C1 is C-1, C2 is C+1,
-								Adyacentes=[[R1,C],[R2,C],[R,C1],[R,C2]].
+getAdyacentes([R,C],Adyacentes):-
+	R1 is R-1,
+	R2 is R+1,
+	C1 is C-1,
+	C2 is C+1,
+	getPosicion([R,C1],Pos1),
+	getPosicion([R,C2],Pos2),
+	getPosicion([R1,C],Pos3),
+	getPosicion([R2,C],Pos4),
+	AdyacentesAux=[Pos1,Pos2,Pos3,Pos4],
+	borrarPosVacias(AdyacentesAux,Adyacentes).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% getPosicion(+Pos, -Posicion).
+%
+% Si Pos está dentro de los límites del tablero, Posicion es Pos.
+% Caso contrario, Posicion es [].
+
+getPosicion([R,C],[]):-
+	R<0;
+	R>18;
+	C<0;
+	C>18.
+
+getPosicion([R,C],[R,C]):-
+	R>=0,
+	R=<18,
+	C>=0,
+	C=<18.
+
+borrarPosVacias([],[]).
+
+borrarPosVacias([[]|Xs],Ys):-
+		borrarPosVacias(Xs,Ys).
+
+borrarPosVacias([P|Xs],[P|Ys]):-
+		P\=[],
+		borrarPosVacias(Xs,Ys).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
