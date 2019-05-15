@@ -267,10 +267,10 @@ getAdyacentes([R,C],Adyacentes):-
 	R2 is R+1,
 	C1 is C-1,
 	C2 is C+1,
-	getPosicion([R,C1],Pos1),
-	getPosicion([R,C2],Pos2),
-	getPosicion([R1,C],Pos3),
-	getPosicion([R2,C],Pos4),
+	getPosicion([R,C1],Pos1,18),
+	getPosicion([R,C2],Pos2,18),
+	getPosicion([R1,C],Pos3,18),
+	getPosicion([R2,C],Pos4,18),
 	AdyacentesAux=[Pos1,Pos2,Pos3,Pos4],
 	borrarPosVacias(AdyacentesAux,Adyacentes).
 
@@ -282,17 +282,17 @@ getAdyacentes([R,C],Adyacentes):-
 % Si Pos está dentro de los límites del tablero, Posicion es Pos.
 % Caso contrario, Posicion es [].
 
-getPosicion([R,C],[]):-
+getPosicion([R,C],[],Limite):-
 	R<0;
-	R>18;
+	R>Limite;
 	C<0;
-	C>18.
+	C>Limite.
 
-getPosicion([R,C],[R,C]):-
+getPosicion([R,C],[R,C],Limite):-
 	R>=0,
-	R=<18,
+	R=<Limite,
 	C>=0,
-	C=<18.
+	C=<Limite.
 
 borrarPosVacias([],[]).
 
