@@ -1,7 +1,8 @@
 :- module(proylcc,
 	[
 		emptyBoard/1,
-		goMove/4
+		goMove/4,
+		getNulasCapturadas/3
 	]).
 
 	emptyBoard([
@@ -12,6 +13,7 @@
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+			 ["-","-","-","-","-","-","b","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
@@ -21,8 +23,7 @@
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
-			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+		 	 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
 			 ["-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"]
 			 ]).
 
@@ -57,7 +58,7 @@ goMove(Board, Player, [R,C], RBoard):-
 % devolverCapturadas(+Board, +Adyacentes, +Color, +ColorContrario, -Capturadas).
 %
 % Verifica si cada una de las fichas en la lista de Adyacentes está capturada.
-% Capturadas es el resultado de la union de los conjuntos de c/u de las fichas capturadas. 
+% Capturadas es el resultado de la union de los conjuntos de c/u de las fichas capturadas.
 
 devolverCapturadas(_Board,[],_Color,_CC,[]).
 
@@ -69,6 +70,7 @@ devolverCapturadas(Board,[P|Ps],Color,CC,Capturadas):-
 
 devolverCapturadas(Board,[_P|Ps],Color,CC,Capturadas):-
 		devolverCapturadas(Board,Ps,Color,CC,Capturadas).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -91,10 +93,10 @@ eliminar(Board, [R,C], RBoard):-
 eliminarCapturadas(Board,[],Board).
 
 eliminarCapturadas(Board,[Pos|Capturadas],NBoard):-
-		eliminarCapturadas(Board,Capturadas,BoardAux), 
+		eliminarCapturadas(Board,Capturadas,BoardAux),
 		eliminar(BoardAux,Pos,NBoard).
-		
-		
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % replace(?X, +XIndex, +Y, +Xs, -XsY)
@@ -112,10 +114,11 @@ replace(X, XIndex, Y, [Xi|Xs], [Xi|XsY]):-
 %
 % capturada(+Board, +Pos, +Color, +Visitados, -Capturadas).
 %
-% Verifica si la ficha de color Color en la posicion Pos del tablero Board está capturada por 
+% Verifica si la ficha de color Color en la posicion Pos del tablero Board está capturada por
 % ColorContrario y devuelve el conjunto capturado en Capturadas.
 
 capturada(Board,Pos,Color,ColorContrario,Visitados,Capturadas):-
+		obtenerContenido(Board,Pos,Color),
 		getAdyacentes(Pos,Adyacentes),
 		analizarAdyacentes(Board,Adyacentes,[Pos|Visitados],Color,ColorContrario,Capts),
 		Capturadas=[Pos|Capts].
@@ -131,9 +134,10 @@ capturada(Board,Pos,Color,ColorContrario,Visitados,Capturadas):-
 analizarAdyacentes(_Board,[],_Visit,_Color,_CC,[]).
 
 analizarAdyacentes(Board,[X|Xs],Visitados,Color,CC,Capturadas):-
-		condicionDeCaptura(Board,X,Visitados,Color,CC,Capt1),
-		analizarAdyacentes(Board,Xs,[X|Visitados],Color,CC,Capt2),
-		unir(Capt1,Capt2,Capturadas). 
+		condicionDeCaptura(Board,X,Visitados,Color,CC,Capt1),       %Capts1 contiene las posiciones capturadas que se verificaron para X
+		diferencia(Xs,Capt1,XsAux),                                % Elimino de Xs todas las que ya verifique antes, que estan en Capt1  CLAVE MAGICA
+		analizarAdyacentes(Board,XsAux,Visitados,Color,CC,Capt2),
+		unir(Capt1,Capt2,Capturadas).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -151,7 +155,7 @@ condicionDeCaptura(Board,Pos,Visitados,Color,_CC,[]):-
 
 condicionDeCaptura(Board,Pos,Visitados,Color,CC,Capturadas):-
 		not(member(Pos,Visitados)),
-		obtenerContenido(Board,Pos,Color), 
+		obtenerContenido(Board,Pos,Color),
 		capturada(Board,Pos,Color,CC,Visitados,Capturadas).
 
 
@@ -162,24 +166,54 @@ condicionDeCaptura(Board,Pos,Visitados,Color,CC,Capturadas):-
 % Devuelve el contenido de la posición Pos en Board.
 
 obtenerContenido(Board, [R,C], Contenido):-
-    replace(Row, R, NRow, Board, _RBoard), replace(Contenido, C, Contenido, Row, NRow).
+    replace(Row, R, NRow, Board, _RBoard),
+		replace(Contenido, C, Contenido, Row, NRow).
 
 
+crearListaNulas(Board,ListaNulas,Color):- recorrerMatriz(Board,0,0,ListaNulas,Color,Board).
 
-crearListaNulas(Board,ListaNulas):-recorrerMatriz(Board,0,0,ListaNulas).
+recorrerMatriz([],_F,_C,[],_Color,_Board).
+recorrerMatriz([X|Xs],F,C,Lista,Color,Board):-
+		recorrerLista(Board,X,F,C,Lista1,Color), F1 is F+1,
+		recorrerMatriz(Xs,F1,C,Lista2,Color,Board), append(Lista1,Lista2,Lista).
 
-recorrerMatriz([],_,_,[]).
-recorrerMatriz([X|Xs],F,C,Lista):-recorrerLista(X,F,C,Lista1),F1 is F+1 ,recorrerMatriz(Xs,F1,C,Lista2),append(Lista1,Lista2,Lista).
+recorrerLista(_Board,[],_,_,[],_Color).
 
-recorrerLista([],_,_,[]).
-recorrerLista([X|Xs],F,C,[[F,C]|ListaAux]):-X="-", C1 is C+1, recorrerLista(Xs,F,C1,ListaAux).
-recorrerLista([X|Xs],F,C,ListaNulas):-C1 is C+1,recorrerLista(Xs,F,C1,ListaNulas).
+recorrerLista(Board,[X|Xs],F,C,[[F,C]|ListaAux],Color):-
+		X="-",
+		getAdyacentes([F,C],Adyacentes),
+		hayAlgunAdyacenteDeColor(Board,Adyacentes,Color),
+		C1 is C+1,
+		recorrerLista(Board,Xs,F,C1,ListaAux,Color).
 
-getNulasCapturadas(Board,CapturadasNegras,CapturadasBlancas):-
-		crearListaNulas(Board,ListaNulas),
-		findall(Pos,(member(Pos,ListaNulas),capturada(Board,Pos,"-","b",[],_Conj1)),CampturadasNegras),
-		findall(Pos,(member(Pos,ListaNulas),capturada(Board,Pos,"-","w",[],_Conj)),CampturadasNegras).
+recorrerLista(Board,[_X|Xs],F,C,ListaNulas,Color):-
+		C1 is C+1,
+		recorrerLista(Board,Xs,F,C1,ListaNulas,Color).
 
+hayAlgunAdyacenteDeColor(Board,[X|Xs],Color):-
+		obtenerContenido(Board,X,Color);
+		hayAlgunAdyacenteDeColor(Board,Xs,Color).
+
+getNulasCapturadas(Board,CapsNegras,CapsBlancas):-
+		crearListaNulas(Board,ListaNulasBlancas,"w"),
+		crearListaNulas(Board,ListaNulasNegras,"b"),
+		getCapturadasPor(Board,ListaNulasNegras,"b",CapsNegras),
+		getCapturadasPor(Board,ListaNulasBlancas,"w",CapsBlancas).
+
+getCapturadasPor(_Board,[],_Color,[]).
+
+getCapturadasPor(Board,[Pos|ListaNulas],Color,Capturadas):-
+		capturada(Board,Pos,"-",Color,[],Caps1),
+		diferencia(ListaNulas,Caps1,ListaAux),                 %%%%%%%%%%%%%%%  CLAVE MAGICA
+		getCapturadasPor(Board,ListaAux,Color,Caps2),
+		append(Caps1,Caps2,Capturadas).
+
+getCapturadasPor(Board,[_Pos|ListaNulas],Color,Capturadas):-
+		getCapturadasPor(Board,ListaNulas,Color,Capturadas).
+
+diferencia([],_,[]).
+diferencia([X|Xs],Ys,Zs):- member(X,Ys), diferencia(Xs,Ys,Zs).
+diferencia([X|Xs],Ys,Zs):- not(member(X,Ys)), diferencia(Xs,Ys,Z1), Zs=[X|Z1].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -190,6 +224,38 @@ getColorContrario("w","b").
 getColorContrario("b","w").
 
 
+obtenerConjunto(Board,Pos,Color,[Pos|Conjunto]):-
+		getAdyacentes(Pos,Adyacentes),
+		sonDeMiColor(Board,Adyacentes,Color,AdyacentesColor),
+		verAdyacentesMiColor(Board,AdyacentesColor,[Pos],Color,Conjunto).
+
+verAdyacentesMiColor(_Board,[],_Visitados,_Color,[]).
+
+verAdyacentesMiColor(Board,[X|Xs],Visitados,Color,Conjunto):-
+		not(member(X,Visitados)),
+		getAdyacentes(X,Adyacentes),
+
+		sonDeMiColor(Board,Adyacentes,Color,AdyacentesColor),
+		unir(Xs,AdyacentesNoVisitados,ListaARecorrer),
+		diferencia(AdyacentesColor,Visitados,AdyacentesNoVisitados),
+		verAdyacentesMiColor(Board,ListaARecorrer,[X|Visitados],Color,Conj1),
+		Conjunto=[X|Conj1].
+
+verAdyacentesMiColor(Board,[X|Xs],Visitados,Color,Conjunto):-
+		%%%%%%%%%    CORREGIR ACA FLACO! FIJATE QUE ESTAS METIENDO LOS MISMOS %%%%%%%%%
+		verAdyacentesMiColor(Board,Xs,[X|Visitados],Color,Conjunto).
+
+
+sonDeMiColor(_Board,[],_Color,[]).
+
+sonDeMiColor(Board,[X|Xs],Color,Adyacentes):-
+		obtenerContenido(Board,X,Color1),
+		Color=Color1,
+		sonDeMiColor(Board,Xs,Color,Conj1),
+		Adyacentes=[X|Conj1].
+
+sonDeMiColor(Board,[_X|Xs],Color,Adyacentes):-
+		sonDeMiColor(Board,Xs,Color,Adyacentes).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % getAdyacentes(+Pos, -Adyacentes).
@@ -204,7 +270,7 @@ getAdyacentes([0,C],[[1,C],[0,C1],[0,C2]]):- C\=0, C1 is C-1, C2 is C+1.
 getAdyacentes([18,C],[[17,C],[18,C1],[18,C2]]):- C\=18, C1 is C-1, C2 is C+1.
 getAdyacentes([R,0],[[R,1],[R1,0],[R2,0]]):- R\=0, R1 is R-1, R2 is R+1.
 getAdyacentes([R,18],[[R,17],[R1,18],[R2,18]]):- R\=18, R1 is R-1, R2 is R+1.
-getAdyacentes([R,C],Adyacentes):-R\=0, C\=0,  R\=18, C\=18, R1 is R-1, R2 is R+1, C1 is C-1, C2 is C+1,
+getAdyacentes([R,C],Adyacentes):-R\=0, C\=0, R\=18, C\=18, R1 is R-1, R2 is R+1, C1 is C-1, C2 is C+1,
 								Adyacentes=[[R1,C],[R2,C],[R,C1],[R,C2]].
 
 
@@ -216,8 +282,8 @@ getAdyacentes([R,C],Adyacentes):-R\=0, C\=0,  R\=18, C\=18, R1 is R-1, R2 is R+1
 
 unir([],Ys,Ys).
 
-unir([X|Xs],Ys,Zs):- 
+unir([X|Xs],Ys,Zs):-
     member(X,Ys), unir(Xs,Ys,Zs).
 
-unir([X|Xs],Ys,[X|Z1]):- 
+unir([X|Xs],Ys,[X|Z1]):-
     not(member(X,Ys)), unir(Xs,Ys,Z1).

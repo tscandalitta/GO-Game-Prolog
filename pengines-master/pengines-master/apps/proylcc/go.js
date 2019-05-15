@@ -83,22 +83,26 @@ function handleCreate() {
  */
 
 function handleSuccess(response) {
-    alert("ESTOY EN success");
     if(finalize){
-
-
-
       var listaNegras= response.data[0].CapturadasNegro;
       var listaBlancas= response.data[0].CapturadasBlanco;
 
+      alert("negras: "+listaNegras.length+" blancas: "+listaBlancas.length);
       contFichasNegras+=listaNegras.length;
       contFichasBlancas+=listaBlancas.length;
+
+      finalize=false;
+
+      imprimirPuntajes();
+      turnosConsecutivosPasados=0;
+      //Limpio tablero.
+      pengine.ask('emptyBoard(Board)');
+      //Empieza el jugador negro.
+      turnBlack = true;
+      bodyElem.className = "turnBlack";
     }
 
     else{
-
-      alert(" NO ESTOY EN FINALIZE");
-
       contFichasNegras=0;
       contFichasBlancas=0;
 
@@ -158,24 +162,8 @@ function switchTurnDesdeTablero() {
 }
 
 function finalizar(){
-
     finalize=true;
-
-    alert("puse en true finalizar");
-
-    pengine.ask("getNulsCapturadas(" + Pengine.stringify(gridData) + ",CapturadasNegro,CapturadasBlanco)");
-
-    alert("volvi");
-
-    finalize=false;
-
-    imprimirPuntajes();
-    turnosConsecutivosPasados=0;
-    //Limpio tablero.
-    pengine.ask('emptyBoard(Board)');
-    //Empieza el jugador negro.
-    turnBlack = true;
-    bodyElem.className = "turnBlack";
+    pengine.ask("getNulasCapturadas(" + Pengine.stringify(gridData) + ",CapturadasNegro,CapturadasBlanco)");
 }
 
 
