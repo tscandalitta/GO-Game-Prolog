@@ -4,6 +4,9 @@
     margin: -10px;
     background-image: url(images/fondo.jpg);
     background-repeat: repeat-y;
+
+    -webkit-transition-duration: 0.5s;
+    transition-duration: 0.5s;
 }
 
 .leftBar {
@@ -131,6 +134,7 @@
 
 .puntajes {
     text-transform: uppercase;
+    text-align: center;
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
-    padding: 20px 30px;
+    padding: 20px 5px;
 }

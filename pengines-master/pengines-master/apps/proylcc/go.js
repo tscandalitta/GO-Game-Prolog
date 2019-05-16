@@ -10,11 +10,12 @@ var turnBlack = false;
 // Contador de turnos consecutivos pasados.
 var turnosConsecutivosPasados;
 var bodyElem;
+var panel;
 var latestStone;
 
 var contFichasNegras, contFichasBlancas;
 
-var finalize = false;
+var juegoFinalizado = false;
 
 
 
@@ -26,6 +27,7 @@ var finalize = false;
 function init() {
     document.getElementById("passBtn").addEventListener('click', () => switchTurn());
     bodyElem = document.getElementsByTagName('body')[0];
+    panel = document.getElementById("panel");
     createBoard();
     // Creación de un conector (interface) para comunicarse con el servidor de Prolog.
     pengine = new Pengine({
@@ -83,18 +85,18 @@ function handleCreate() {
  */
 
 function handleSuccess(response) {
-    if(finalize){
+    if(juegoFinalizado){
       var listaNegras= response.data[0].CapturadasNegro;
       var listaBlancas= response.data[0].CapturadasBlanco;
 
-      alert("negras: "+listaNegras.length+" blancas: "+listaBlancas.length);
       contFichasNegras+=listaNegras.length;
       contFichasBlancas+=listaBlancas.length;
 
-      finalize=false;
+      juegoFinalizado=false;
 
       imprimirPuntajes();
       turnosConsecutivosPasados=0;
+      panel.style.opacity=1;
       //Limpio tablero.
       pengine.ask('emptyBoard(Board)');
       //Empieza el jugador negro.
@@ -157,15 +159,15 @@ function switchTurn() {
 function switchTurnDesdeTablero() {
     turnBlack = !turnBlack;
     bodyElem.className = turnBlack ? "turnBlack" : "turnWhite";
-    document.getElementById("puntajeNegras").innerHTML= ""+contFichasNegras;
-    document.getElementById("puntajeBlancas").innerHTML= ""+contFichasBlancas;
+    document.getElementById("puntajeNegras").innerHTML= "negras: "+contFichasNegras;
+    document.getElementById("puntajeBlancas").innerHTML= "blancas: "+contFichasBlancas;
 }
 
 function finalizar(){
-    finalize=true;
+    juegoFinalizado = true;
+    panel.style.opacity=0.5;
     pengine.ask("getNulasCapturadas(" + Pengine.stringify(gridData) + ",CapturadasNegro,CapturadasBlanco)");
 }
-
 
 function imprimirPuntajes(){
     if(contFichasNegras>contFichasBlancas)
@@ -175,6 +177,7 @@ function imprimirPuntajes(){
     else
       alert("GANO EL JUGADOR BLANCO\nPUNTAJE: "+contFichasBlancas);
 }
+
 /**
 * Call init function after window loaded to ensure all HTML was created before
 * accessing and manipulating it.
