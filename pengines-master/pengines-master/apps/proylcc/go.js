@@ -80,10 +80,8 @@ function handleSuccess(response) {
     if(juegoFinalizado){
       var listaNegras = response.data[0].CapturadasNegro;
       var listaBlancas = response.data[0].CapturadasBlanco;
-      contadorFichasNegras += listaNegras.length;
-      contadorFichasBlancas += listaBlancas.length;
       juegoFinalizado = false;
-      imprimirPuntajes();
+      imprimirPuntajes(listaNegras.length,listaBlancas.length);
       reiniciarJuego();
     }
     else{
@@ -148,13 +146,20 @@ function finalizar(){
     pengine.ask("getNulasCapturadas(" + Pengine.stringify(gridData) + ",CapturadasNegro,CapturadasBlanco)");
 }
 
-function imprimirPuntajes(){
-    if(contadorFichasNegras > contadorFichasBlancas)
-      alert("GANO EL JUGADOR NEGRO\nPUNTAJE: " + contadorFichasNegras)
-    else if(contadorFichasNegras == contadorFichasBlancas)
-      alert("EMPATE\nPUNTAJE NEGRO: " + contadorFichasNegras + "\nPUNTAJE BLANCO: " + contadorFichasBlancas)
+function imprimirPuntajes(capturadasNegras, capturadasBlancas){
+    var totalNegras = contadorFichasNegras + capturadasNegras;
+    var totalBlancas = contadorFichasBlancas + capturadasBlancas;
+    var ganador = "";
+
+    if(totalNegras > totalBlancas)
+      ganador = "GANO EL JUGADOR NEGRO";
+    else if(totalNegras == totalBlancas)
+      ganador = "EMPATE";
     else
-      alert("GANO EL JUGADOR BLANCO\nPUNTAJE: " + contadorFichasBlancas);
+      ganador = "GANO EL JUGADOR BLANCO";
+
+    alert(ganador + "\nPUNTAJE NEGRO: " + totalNegras +"\n    Fichas: " + contadorFichasNegras + ", Capturadas: " + capturadasNegras +
+          "\nPUNTAJE BLANCO: " + totalBlancas +"\n    Fichas: " + contadorFichasBlancas + ", Capturadas: " + capturadasBlancas);
 }
 
 
