@@ -7,17 +7,13 @@ var gridData;
 var cellElems;
 // States if it's black player turn.
 var turnBlack = false;
-// Contador de turnos consecutivos pasados.
-var turnosConsecutivosPasados;
 var bodyElem;
 var panel;
 var latestStone;
-
-var contFichasNegras, contFichasBlancas;
-
+var turnosConsecutivosPasados = 0;
+var contadorFichasNegras = 0;
+var contadorFichasBlancas = 0;
 var juegoFinalizado = false;
-
-
 
 /**
 * Initialization function. Requests to server, through pengines.js library,
@@ -38,10 +34,6 @@ function init() {
         onfailure: handleFailure,
         destroy: false
     });
-    // Inicializo parametros
-    turnosConsecutivosPasados=0;
-    contFichasNegras=0;
-    contFichasBlancas=0;
 }
 
 /**
@@ -86,27 +78,17 @@ function handleCreate() {
 
 function handleSuccess(response) {
     if(juegoFinalizado){
-      var listaNegras= response.data[0].CapturadasNegro;
-      var listaBlancas= response.data[0].CapturadasBlanco;
-
-      contFichasNegras+=listaNegras.length;
-      contFichasBlancas+=listaBlancas.length;
-
-      juegoFinalizado=false;
-
+      var listaNegras = response.data[0].CapturadasNegro;
+      var listaBlancas = response.data[0].CapturadasBlanco;
+      contadorFichasNegras += listaNegras.length;
+      contadorFichasBlancas += listaBlancas.length;
+      juegoFinalizado = false;
       imprimirPuntajes();
-      turnosConsecutivosPasados=0;
-      panel.style.opacity=1;
-      //Limpio tablero.
-      pengine.ask('emptyBoard(Board)');
-      //Empieza el jugador negro.
-      turnBlack = true;
-      bodyElem.className = "turnBlack";
+      reiniciarJuego();
     }
-
     else{
-      contFichasNegras=0;
-      contFichasBlancas=0;
+      contadorFichasNegras = 0;
+      contadorFichasBlancas = 0;
 
       gridData = response.data[0].Board;
       for (let row = 0; row < gridData.length; row++)
@@ -115,18 +97,15 @@ function handleSuccess(response) {
                   (gridData[row][col] === "w" ? " stoneWhite" : gridData[row][col] === "b" ? " stoneBlack" : "") +
                   (latestStone && row === latestStone[0] && col === latestStone[1] ? " latest" : "");
               //Contador de fichas en el tablero.
-              if( gridData[row][col] === "w")
-                contFichasBlancas++
-              else if( gridData[row][col] === "b")
-                contFichasNegras++;
+              if(gridData[row][col] === "w")
+                contadorFichasBlancas++;
+              else if(gridData[row][col] === "b")
+                contadorFichasNegras++;
           }
-
       //Si algun jugador coloca una ficha seteo el contador en 0.
-      turnosConsecutivosPasados=0;
+      turnosConsecutivosPasados = 0;
       switchTurnDesdeTablero();
-
     }
-
 }
 
 /**
@@ -151,7 +130,7 @@ function handleClick(row, col) {
 
 function switchTurn() {
     turnosConsecutivosPasados++;
-    if(turnosConsecutivosPasados==2)
+    if(turnosConsecutivosPasados == 2)
       finalizar();
     switchTurnDesdeTablero();
 }
@@ -159,23 +138,33 @@ function switchTurn() {
 function switchTurnDesdeTablero() {
     turnBlack = !turnBlack;
     bodyElem.className = turnBlack ? "turnBlack" : "turnWhite";
-    document.getElementById("puntajeNegras").innerHTML= "negras: "+contFichasNegras;
-    document.getElementById("puntajeBlancas").innerHTML= "blancas: "+contFichasBlancas;
+    document.getElementById("puntajeNegras").innerHTML = "negras: " + contadorFichasNegras;
+    document.getElementById("puntajeBlancas").innerHTML = "blancas: " + contadorFichasBlancas;
 }
 
 function finalizar(){
     juegoFinalizado = true;
-    panel.style.opacity=0.5;
+    panel.style.opacity = 0.4;
     pengine.ask("getNulasCapturadas(" + Pengine.stringify(gridData) + ",CapturadasNegro,CapturadasBlanco)");
 }
 
 function imprimirPuntajes(){
-    if(contFichasNegras>contFichasBlancas)
-      alert("GANO EL JUGADOR NEGRO\nPUNTAJE: "+contFichasNegras)
-    else if(contFichasNegras==contFichasBlancas)
-      alert("EMPATE\nPUNTAJE NEGRO: "+contFichasNegras+"\nPUNTAJE BLANCO: "+contFichasBlancas)
+    if(contadorFichasNegras > contadorFichasBlancas)
+      alert("GANO EL JUGADOR NEGRO\nPUNTAJE: " + contadorFichasNegras)
+    else if(contadorFichasNegras == contadorFichasBlancas)
+      alert("EMPATE\nPUNTAJE NEGRO: " + contadorFichasNegras + "\nPUNTAJE BLANCO: " + contadorFichasBlancas)
     else
-      alert("GANO EL JUGADOR BLANCO\nPUNTAJE: "+contFichasBlancas);
+      alert("GANO EL JUGADOR BLANCO\nPUNTAJE: " + contadorFichasBlancas);
+}
+
+
+function reiniciarJuego(){
+    turnosConsecutivosPasados = 0;
+    panel.style.opacity = 1;
+    //Limpio tablero.
+    turnBlack = false;
+    bodyElem.className = "turnWhite";
+    handleCreate();
 }
 
 /**

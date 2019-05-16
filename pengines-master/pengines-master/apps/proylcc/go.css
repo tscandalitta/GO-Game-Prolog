@@ -4,9 +4,8 @@
     margin: -10px;
     background-image: url(images/fondo.jpg);
     background-repeat: repeat-y;
-
-    -webkit-transition-duration: 0.5s;
-    transition-duration: 0.5s;
+    -webkit-transition-duration: 0.7s;
+    transition-duration: 0.7s;
 }
 
 .leftBar {
@@ -14,7 +13,8 @@
     flex-direction: column;
     margin: 20px;
     border-radius: 25px;
-    background-color: #ffffff;
+    /*background-color: #ffffff;*/
+    background: rgba(255, 255, 255, 0.7);
 }
 
 .board {
@@ -117,7 +117,7 @@
 .passBtn {
     margin: 15px;
     height: 40px;
-    background: white;
+    background: rgba(255, 255, 255, 0.7);
     font-size: 18px;
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     cursor: pointer;
@@ -129,7 +129,7 @@
 
 .passBtn:hover{
     background-color: #E97414;
-  color: white;
+    color: white;
 }
 
 .puntajes {
