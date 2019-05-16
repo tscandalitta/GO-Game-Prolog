@@ -263,7 +263,7 @@ getCapturadasPor(_Board,[],_Color,[]).
 
 getCapturadasPor(Board,[Pos|ListaNulas],Color,Capturadas):-
 		capturada(Board,Pos,"-",Color,[],Capts1),							 % Capts1 contiene las posiciones capturadas que se verificaron para la captura de Pos
-		diferencia(ListaNulas,Caps1,ListaAux),                 % Elimino de ListaNulas todas las posiciones que ya se verificaron en Capts1
+		diferencia(ListaNulas,Capts1,ListaAux),                 % Elimino de ListaNulas todas las posiciones que ya se verificaron en Capts1
 		getCapturadasPor(Board,ListaAux,Color,Capts2),
 		append(Capts1,Capts2,Capturadas).
 
