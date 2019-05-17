@@ -8,13 +8,16 @@ var cellElems;
 // States if it's black player turn.
 var turnBlack = false;
 var bodyElem;
-var panel;
 var latestStone;
 var turnosConsecutivosPasados = 0;
 var contadorFichasNegras = 0;
 var contadorFichasBlancas = 0;
 var juegoFinalizado = false;
-
+var modalPuntajes;
+var modalJugadaInvalida;
+// Get the <span> element that closes the modalPuntajes
+var spanP;
+var spanJ;
 /**
 * Initialization function. Requests to server, through pengines.js library,
 * the creation of a Pengine instance, which will run Prolog code server-side.
@@ -23,7 +26,17 @@ var juegoFinalizado = false;
 function init() {
     document.getElementById("passBtn").addEventListener('click', () => switchTurn());
     bodyElem = document.getElementsByTagName('body')[0];
-    panel = document.getElementById("panel");
+    modalPuntajes = document.getElementById("modalPuntajes");
+    modalJugadaInvalida = document.getElementById("modalJugadaInvalida");
+    spanP = document.getElementsByClassName("closeP")[0];
+    spanJ = document.getElementsByClassName("closeJ")[0];
+    spanP.onclick = function() {
+      modalPuntajes.style.display = "none";
+    }
+    spanJ.onclick = function() {
+      modalPuntajes.style.display = "none";
+    }
+    // Get the <span> element that closes the modalPuntajes
     createBoard();
     // Creación de un conector (interface) para comunicarse con el servidor de Prolog.
     pengine = new Pengine({
@@ -113,7 +126,9 @@ function handleSuccess(response) {
 function handleFailure() {
     var row = latestStone[0];
     var col = latestStone[1];
-    alert("JUGADA INVALIDA [" + row + "," + col + "]");
+    document.getElementById("labelJugadaInvalida").innerHTML = "JUGADA INVALIDA POSICION [" + row + "," + col + "]";
+    modalJugadaInvalida.style.display = "block";
+    setTimeout(function(){ modalJugadaInvalida.style.display = "none"; }, 1000);
 }
 
 /**
@@ -142,7 +157,6 @@ function switchTurnDesdeTablero() {
 
 function finalizar(){
     juegoFinalizado = true;
-    panel.style.opacity = 0.4;
     pengine.ask("getNulasCapturadas(" + Pengine.stringify(gridData) + ",CapturadasNegro,CapturadasBlanco)");
 }
 
@@ -152,33 +166,22 @@ function imprimirPuntajes(capturadasNegras, capturadasBlancas){
     var ganador = "";
 
     if(totalNegras > totalBlancas)
-      ganador = "GANO EL JUGADOR NEGRO";
+      ganador = "GANADOR: NEGRO";
     else if(totalNegras == totalBlancas)
       ganador = "EMPATE";
     else
-      ganador = "GANO EL JUGADOR BLANCO";
+      ganador = "GANADOR: BLANCO";
 
-    alert(ganador + "\nPUNTAJE NEGRO: " + totalNegras +"\n    Fichas: " + contadorFichasNegras + ", Capturadas: " + capturadasNegras +
-          "\nPUNTAJE BLANCO: " + totalBlancas +"\n    Fichas: " + contadorFichasBlancas + ", Capturadas: " + capturadasBlancas);
+    document.getElementById("labelGanador").innerHTML = ganador;
+    document.getElementById("labelNegras").innerHTML = "NEGRO: "+totalNegras+" - Fichas: "+contadorFichasNegras+", Capturadas: "+capturadasNegras;
+    document.getElementById("labelBlancas").innerHTML = "BLANCO: "+totalBlancas +" - Fichas: "+contadorFichasBlancas+", Capturadas: "+capturadasBlancas;
 
-    // Get the modal
-    var modal = document.getElementById("myModal");
-    // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName("close")[0];
-    document.getElementById("puntajeFinal").innerHTML = ganador + "\nPUNTAJE NEGRO: " + totalNegras +"\n    Fichas: " + contadorFichasNegras +
-                                                    ", Capturadas: " + capturadasNegras + "\nPUNTAJE BLANCO: " + totalBlancas +
-                                                    "\n    Fichas: " + contadorFichasBlancas + ", Capturadas: " + capturadasBlancas;
-    span.onclick = function() {
-      modal.style.display = "none";
-    }
-
-    modal.style.display = "block";
+    modalPuntajes.style.display = "block";
 }
 
 
 function reiniciarJuego(){
     turnosConsecutivosPasados = 0;
-    panel.style.opacity = 1;
     //Limpio tablero.
     turnBlack = false;
     bodyElem.className = "turnWhite";

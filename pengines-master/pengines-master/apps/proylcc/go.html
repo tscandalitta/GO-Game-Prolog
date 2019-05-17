@@ -27,19 +27,33 @@
                 <div id="gridCells"></div>
             </div>
         </div>
-        <div id="myModal" class="modal">
+        <div id="modalPuntajes" class="modalPuntajes">
         <!-- Modal content -->
-          <div class="modal-content">
-            <span class="close">&times;</span>
-            <div id="puntajeFinal"></div>
+          <div class="modalPuntajes-content">
+              <span class="closeP">&times;</span>
+              <div id="labelGanador" class="textGanador"></div>
+              <p></p>
+              <div class="textPuntajes">
+                  <div id="labelNegras"></div>
+                  <p></p>
+                  <div id="labelBlancas"></div>
+              </div>
           </div>
-      </div>
-      <script>
-        var modal = document.getElementById("myModal");
-        window.onclick = function(event) {
-          if (event.target == modal)
-            modal.style.display = "none";
-        }
-      </script>
+        </div>
+        <div id="modalJugadaInvalida" class="modalJugadaInvalida">
+        <!-- Modal content -->
+            <div class="modalJugadaInvalida-content">
+                <span class="closeJ">&times;</span>
+                <div id="labelJugadaInvalida" class="textJugada"></div>
+            </div>
+        </div>
+        <script>
+          var modalPuntajes = document.getElementById("modalPuntajes");
+          var modalJugadaInvalida = document.getElementById("modalJugadaInvalida");
+          window.onclick = function(event) {
+              modalJugadaInvalida.style.display = "none";
+              modalPuntajes.style.display = "none";
+          }
+        </script>
     </body>
 </html>

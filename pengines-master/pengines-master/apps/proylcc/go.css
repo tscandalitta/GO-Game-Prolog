@@ -4,8 +4,6 @@
     margin: -10px;
     background-image: url(images/fondo.jpg);
     background-repeat: repeat-y;
-    -webkit-transition-duration: 0.7s;
-    transition-duration: 0.7s;
 }
 
 .leftBar {
@@ -13,7 +11,6 @@
     flex-direction: column;
     margin: 20px;
     border-radius: 25px;
-    /*background-color: #ffffff;*/
     background: rgba(255, 255, 255, 0.7);
 }
 
@@ -124,7 +121,7 @@
     border: 2px solid #E97414;
     border-radius: 10px;
     -webkit-transition-duration: 0.4s;
-    transition-duration: 0.4s;
+    transition-duration: 0.6s;
 }
 
 .passBtn:hover{
@@ -140,14 +137,14 @@
 }
 
 /* The Modal (background) */
-.modal {
+.modalPuntajes {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
   left: 0;
   top: 0;
   text-align:center;
-  font-size: 25px;
+  font-size: 1.5em;
   width: 100%; /* Full width */
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
@@ -155,26 +152,74 @@
   background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
-/* Modal Content/Box */
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 60%;
-  height: 20%; /* Could be more or less, depending on screen size */
+.textGanador{
+  font-size: 1.5em;
+  text-align:center;
+}
+.textPuntajes{
+
+}
+/* modalPuntajes Content/Box */
+.modalPuntajes-content {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  background-color: #ffffff;
+  margin: 10% auto;
+  padding: 10px;
+  width: 500px;
+  height: 200px; /* Could be more or less, depending on screen size */
+  border-radius: 25px/25px;
+  border: 3px solid #E97414;
 }
 
 /* The Close Button */
-.close {
-  color: #aaa;
+.closeP {
+  color: #E97414;
   float: right;
-  font-size: 28px;
+  font-size: 1.8em;
   font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
+.closeP:hover,
+.closeP:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modalJugadaInvalida {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  text-align:center;
+  font-size: 1.2em;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+}
+
+/* modalPuntajes Content/Box */
+.modalJugadaInvalida-content {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin: 2% auto;
+  padding: 10px;
+  width: 200px;
+  height: 60px; /* Could be more or less, depending on screen size */
+  border-radius: 25px/25px;
+  border: 3px solid #E97414;
+}
+
+/* The Close Button */
+.closeJ {
+  color: #E97414;
+  float: right;
+  font-weight: bold;
+}
+
+.closeJ:hover,
+.closeJ:focus {
   color: black;
   text-decoration: none;
   cursor: pointer;
