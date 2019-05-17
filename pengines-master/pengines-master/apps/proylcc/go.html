@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="go.css">
         <link rel="icon" href="images/favicon-32x32.png" type="image/png" sizes="32x32">
     </head>
-    <body class="turnBlack">
+    <body id= "window" class="turnBlack">
         <div id="panel" class="mainPanel">
             <div class="leftBar">
                 <div class="turnPanel">
@@ -27,5 +27,19 @@
                 <div id="gridCells"></div>
             </div>
         </div>
+        <div id="myModal" class="modal">
+        <!-- Modal content -->
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="puntajeFinal"></div>
+          </div>
+      </div>
+      <script>
+        var modal = document.getElementById("myModal");
+        window.onclick = function(event) {
+          if (event.target == modal)
+            modal.style.display = "none";
+        }
+      </script>
     </body>
 </html>

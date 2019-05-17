@@ -160,6 +160,19 @@ function imprimirPuntajes(capturadasNegras, capturadasBlancas){
 
     alert(ganador + "\nPUNTAJE NEGRO: " + totalNegras +"\n    Fichas: " + contadorFichasNegras + ", Capturadas: " + capturadasNegras +
           "\nPUNTAJE BLANCO: " + totalBlancas +"\n    Fichas: " + contadorFichasBlancas + ", Capturadas: " + capturadasBlancas);
+
+    // Get the modal
+    var modal = document.getElementById("myModal");
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+    document.getElementById("puntajeFinal").innerHTML = ganador + "\nPUNTAJE NEGRO: " + totalNegras +"\n    Fichas: " + contadorFichasNegras +
+                                                    ", Capturadas: " + capturadasNegras + "\nPUNTAJE BLANCO: " + totalBlancas +
+                                                    "\n    Fichas: " + contadorFichasBlancas + ", Capturadas: " + capturadasBlancas;
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    modal.style.display = "block";
 }
 
 
