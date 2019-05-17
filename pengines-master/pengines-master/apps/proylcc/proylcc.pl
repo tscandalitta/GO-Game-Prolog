@@ -2,7 +2,8 @@
 	[
 		emptyBoard/1,
 		goMove/4,
-		getNulasCapturadas/3
+		getNulasCapturadas/3,
+		moverInteligencia/2
 	]).
 
 emptyBoard([
@@ -68,7 +69,7 @@ getColorContrario("b","w").
 % devolverCapturadas(+Board, +Adyacentes, +Color, +ColorContrario, -Capturadas).
 %
 % Para cada una de las posiciones en la lista Adyacentes verifica si dicha posicion
-% está capturada por el ColorContrario y une los conjuntos capturados resultantes
+% está capturada por el Color y une los conjuntos capturados resultantes
 % (si es que existen) en Capturadas.
 
 devolverCapturadas(_Board,[],_Color,_ColorContrario,[]).
@@ -358,3 +359,87 @@ unir([X|Xs],Ys,Zs):-
 
 unir([X|Xs],Ys,[X|Z1]):-
     not(member(X,Ys)), unir(Xs,Ys,Z1).
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% INTELIGENCIA DE LA MAQUINA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% moverInteligencia(+Board,-NBoard).
+%
+% NBoard es la configuracion resultante de realizar una jugada a partir de Board.
+
+% 1. La inteligencia intenta jugar a la defensiva, es decir, si el contrario
+% puede colocar una ficha en una posicion Pos y capturar, la inteligencia coloca
+% una ficha en esa posicion.
+moverInteligencia(Board,NBoard):-
+		crearListaNulas(Board,Adyacentes,"w"),
+		verSiCaptura(Board,Adyacentes,PosAProteger,"b","w"),       % veo si hay alguna posicion en la que me capturen
+		PosAProteger\=[],																		%tengo que proteger esta pos
+		goMove(Board,"w",PosAProteger,NBoard).							% pongo ficha en esa posicion
+
+% 2. Si no hay peligro de captura, juega a la ofensiva.
+% Coloca fichas adyacentes a las del contrario para intentar capturarlo.
+moverInteligencia(Board,NBoard):-
+		crearListaNulas(Board,Adyacentes,"b"),
+		colocarFicha(Board,Adyacentes,NBoard).
+
+% 3. Si no hay posiciones disponibles adyacentes al contrario (muy raro), coloca
+% una ficha an una posicion adyacente a las de su color.
+moverInteligencia(Board,NBoard):-
+		crearListaNulas(Board,[Pos|Adyacentes],"w"),
+		verSiCaptura(Board,[Pos|Adyacentes],PosAProteger,"b","w"),
+		PosAProteger=[],																			% no hay que proteger ninguna pos
+		goMove(Board,"w",Pos,NBoard).													% pongo ficha en cualquier lado
+
+% 4. Aqui juega agresivamente, es decir, busca posiciones en las que pueda capturar
+% fichas del enemigo y coloca una ficha ahi.
+% Ultima opcion ya que es un metodo muy lento. Se podria optimizar
+moverInteligencia(Board,NBoard):-
+		crearListaNulas(Board,[Pos|Adyacentes],"b"),
+		verSiCaptura(Board,[Pos|Adyacentes],PosAColocar,"w","b"),
+		PosAColocar=[],																			% no hay que proteger ninguna pos
+		goMove(Board,"w",PosAColocar,NBoard).
+
+% 5. En el caso de que el jugador pase en el primer turno y no haya fichas en el
+% tablero, se coloca una ficha en una posicion arbitraria.
+moverInteligencia(Board,NBoard):-
+		goMove(Board,"w",[12,10],NBoard).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% colocarFicha(+Board,+Posiciones,-NBoard)
+%
+% Busca una posicion de la lista de Posiciones tal que al colocar una ficha suya,
+% esta no quede capturada por el contrario y la coloca.
+
+colocarFicha(Board,[Pos|_Posiciones],NBoard):-
+		goMove(Board,"w",Pos,NBoard).
+
+colocarFicha(Board,[_Pos|Posiciones],NBoard):-
+		colocarFicha(Board,Posiciones,NBoard).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% verSiMeCaptura(+Board,+Posiciones,-Pos,+Color,+ColorContrario).
+%
+% Simula una jugada del jugador Color para ver si existe una posicion
+% en la lista Posiciones tal que si el jugador Color coloca una ficha en esa posicion,
+% capture fichas de ColorContrario. Retorna esa posicion si existe, caso contrario
+% retorna vacio.
+
+verSiCaptura(_Board,[],[],_Color,_CC).
+
+verSiCaptura(Board,[[R,C]|_Adyacentes],[R,C],Color,ColorContrario):-
+	replace(Row, R, NRow, Board, TableroAux), replace("-", C, Color, Row, NRow),
+	getAdyacentes([R,C],Adyacentes),
+	devolverCapturadas(TableroAux,Adyacentes,Color,ColorContrario,Capturadas), % Devuelve las capturadas por la ficha que puse recien
+	Capturadas\=[].
+
+verSiCaptura(Board,[[R,C]|Adyacentes],Pos,Color,ColorContrario):-
+	replace(Row, R, NRow, Board, TableroAux), replace("-", C, Color, Row, NRow),
+	getAdyacentes([R,C],Ady),
+	devolverCapturadas(TableroAux,Ady,Color,ColorContrario,Capturadas), % Devuelve las capturadas por la ficha que puse recien
+	Capturadas=[],
+	verSiCaptura(Board,Adyacentes,Pos,Color,ColorContrario).

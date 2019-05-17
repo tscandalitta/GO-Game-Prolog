@@ -17,6 +17,9 @@
                 <button id="passBtn" class="passBtn">
                     PASS
                 </button>
+                <button id="finBtn" class="finBtn">
+                    FINALIZAR
+                </button>
                 <div class="puntajes">
                     <div id="puntajeNegras">negras: 0</div>
                     <div id="puntajeBlancas">blancas: 0</div>
@@ -28,7 +31,6 @@
             </div>
         </div>
         <div id="modalPuntajes" class="modalPuntajes">
-        <!-- Modal content -->
           <div class="modalPuntajes-content">
               <span class="closeP">&times;</span>
               <div id="labelGanador" class="textGanador"></div>
@@ -37,6 +39,9 @@
                   <div id="labelNegras"></div>
                   <p></p>
                   <div id="labelBlancas"></div>
+                  <button id="reloadBtn" class="reloadBtn">
+                      VOLVER A JUGAR
+                  </button>
               </div>
           </div>
         </div>
@@ -47,13 +52,5 @@
                 <div id="labelJugadaInvalida" class="textJugada"></div>
             </div>
         </div>
-        <script>
-          var modalPuntajes = document.getElementById("modalPuntajes");
-          var modalJugadaInvalida = document.getElementById("modalJugadaInvalida");
-          window.onclick = function(event) {
-              modalJugadaInvalida.style.display = "none";
-              modalPuntajes.style.display = "none";
-          }
-        </script>
     </body>
 </html>

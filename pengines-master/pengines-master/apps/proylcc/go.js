@@ -18,6 +18,11 @@ var modalJugadaInvalida;
 // Get the <span> element that closes the modalPuntajes
 var spanP;
 var spanJ;
+var jugarContraMaquina;
+var turnoMaquina = true;
+var modo;
+var botonFinalizar;
+var botonPasar;
 /**
 * Initialization function. Requests to server, through pengines.js library,
 * the creation of a Pengine instance, which will run Prolog code server-side.
@@ -25,6 +30,11 @@ var spanJ;
 
 function init() {
     document.getElementById("passBtn").addEventListener('click', () => switchTurn());
+    document.getElementById("finBtn").addEventListener('click', () => finalizar());
+    document.getElementById("reloadBtn").addEventListener('click', () => reiniciarJuego());
+    botonFinalizar = document.getElementById("finBtn");
+    botonPasar = document.getElementById("passBtn");
+    botonFinalizar.disabled = true;
     bodyElem = document.getElementsByTagName('body')[0];
     modalPuntajes = document.getElementById("modalPuntajes");
     modalJugadaInvalida = document.getElementById("modalJugadaInvalida");
@@ -75,6 +85,15 @@ function createBoard() {
             cellElems[row][col] = cellElem;
         }
     }
+    jugarContraMaquina = false;
+    modo = new DosJugadores();
+    setTimeout(function(){
+                    jugarContraMaquina = confirm("DESEA JUGAR CONTRA LA MAQUINA?");
+                    if(jugarContraMaquina){
+                        modo = new Maquina();
+                        botonFinalizar.disabled = false;
+                    }
+              }, 500);
 }
 
 /**
@@ -95,7 +114,6 @@ function handleSuccess(response) {
       var listaBlancas = response.data[0].CapturadasBlanco;
       juegoFinalizado = false;
       imprimirPuntajes(listaNegras.length,listaBlancas.length);
-      reiniciarJuego();
     }
     else{
       contadorFichasNegras = 0;
@@ -136,9 +154,11 @@ function handleFailure() {
  */
 
 function handleClick(row, col) {
-    const s = "goMove(" + Pengine.stringify(gridData) + "," + Pengine.stringify(turnBlack ? "b" : "w") + "," + "[" + row + "," + col + "]" + ",Board)";
-    pengine.ask(s);
-    latestStone = [row, col];
+    if(!jugarContraMaquina | !turnoMaquina){
+      const s = "goMove(" + Pengine.stringify(gridData) + "," + Pengine.stringify(turnBlack ? "b" : "w") + "," + "[" + row + "," + col + "]" + ",Board)";
+      pengine.ask(s);
+      latestStone = [row, col];
+  }
 }
 
 function switchTurn() {
@@ -150,16 +170,34 @@ function switchTurn() {
 
 function switchTurnDesdeTablero() {
     turnBlack = !turnBlack;
+    if(jugarContraMaquina){
+        turnoMaquina = !turnoMaquina;
+        if(!turnoMaquina){
+            botonPasar.disabled = false;
+            botonFinalizar.disabled = false;
+        }
+    }
+    else
+      turnoMaquina = false;
+
     bodyElem.className = turnBlack ? "turnBlack" : "turnWhite";
     document.getElementById("puntajeNegras").innerHTML = "negras: " + contadorFichasNegras;
     document.getElementById("puntajeBlancas").innerHTML = "blancas: " + contadorFichasBlancas;
+    if(!turnBlack)
+      modo.realizarJugada();
 }
 
 function finalizar(){
     juegoFinalizado = true;
+    botonPasar.disabled = true;
+    botonFinalizar.disabled = true;
     pengine.ask("getNulasCapturadas(" + Pengine.stringify(gridData) + ",CapturadasNegro,CapturadasBlanco)");
+
 }
 
+function reiniciarJuego(){
+  document.location.reload();
+}
 function imprimirPuntajes(capturadasNegras, capturadasBlancas){
     var totalNegras = contadorFichasNegras + capturadasNegras;
     var totalBlancas = contadorFichasBlancas + capturadasBlancas;
@@ -179,18 +217,24 @@ function imprimirPuntajes(capturadasNegras, capturadasBlancas){
     modalPuntajes.style.display = "block";
 }
 
-
-function reiniciarJuego(){
-    turnosConsecutivosPasados = 0;
-    //Limpio tablero.
-    turnBlack = false;
-    bodyElem.className = "turnWhite";
-    handleCreate();
-}
-
 /**
 * Call init function after window loaded to ensure all HTML was created before
 * accessing and manipulating it.
 */
 
 window.onload = init;
+
+
+class DosJugadores{
+  realizarJugada(){
+  }
+}
+
+class Maquina{
+  realizarJugada(){
+    turnoMaquina = true;
+    botonPasar.disabled = true;
+    botonFinalizar.disabled = true;
+    pengine.ask("moverInteligencia(" + Pengine.stringify(gridData) + ",Board)");
+  }
+}
